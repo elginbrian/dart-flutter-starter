@@ -82,6 +82,9 @@ jobs:
             git fetch origin
             git reset --hard origin/main
             docker pull ${{ secrets.DOCKER_USERNAME }}/flutter-starter:latest
-            docker image prune -f
+            docker stop $(docker ps -aq) || true
+            docker rm $(docker ps -aq) || true
             docker-compose down
-            docker-compose up --build -d
+            docker-compose rm -f
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/flutter-starter:latest || true
+            docker-compose up --force-recreate --build -d

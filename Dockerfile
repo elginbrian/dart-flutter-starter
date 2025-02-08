@@ -6,16 +6,20 @@ RUN apt-get update && apt-get install -y \
 
 RUN git clone https://github.com/flutter/flutter.git /opt/flutter
 WORKDIR /opt/flutter
-RUN git checkout stable
 
+RUN git checkout 3.27.4
 ENV PATH="/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:${PATH}"
 
 RUN flutter config --enable-web
-WORKDIR /app
-COPY . .
 
-RUN flutter clean && flutter pub get
-RUN flutter build web --release
+WORKDIR /app
+COPY pubspec.yaml pubspec.lock /app/
+RUN flutter pub get
+
+COPY . /app/
+
+RUN flutter clean && flutter build web --release \
+    && rm -rf /app/.dart_tool  # Reduce image size
 
 FROM nginx:stable-alpine
 WORKDIR /usr/share/nginx/html
