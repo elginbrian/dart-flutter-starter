@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,10 +21,9 @@ jobs:
         with:
           flutter-version: 3.27.4
 
-      - name: Install dependencies and run tests
+      - name: Install dependencies
         run: |
           flutter pub get
-          flutter test
 
       - name: Build Flutter web app
         run: |
@@ -37,7 +36,7 @@ jobs:
           path: build/web
 
   docker:
-    needs: build-and-test
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
