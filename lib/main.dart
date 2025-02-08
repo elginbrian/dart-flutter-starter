@@ -27,8 +27,8 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         if (kIsWeb) {
           return WebLayout(
-              child: child!,
-              localBackgroundImagePath: 'default_background.jpg');
+              localBackgroundImagePath: 'assets/default_background.jpg',
+              child: child!);
         }
         return child!;
       },

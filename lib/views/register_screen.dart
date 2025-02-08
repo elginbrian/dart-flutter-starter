@@ -23,6 +23,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -30,53 +31,80 @@ class _RegisterScreenState extends State<RegisterScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Icon(Icons.person_add, size: 64, color: Colors.white),
-              const SizedBox(height: 20),
+              const Icon(Icons.chat_bubble_rounded,
+                  size: 80, color: Colors.blue),
+              const SizedBox(height: 30),
               Text(
-                "Create Account",
-                style: theme.textTheme.titleLarge?.copyWith(fontSize: 24),
+                "Create Your Account",
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 10),
               Text(
-                "Join us today and start exploring!",
-                style: theme.textTheme.bodyMedium,
+                "Join the conversation today!",
+                style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 40),
               _buildTextField(_usernameController, "Username", false),
               const SizedBox(height: 16),
               _buildTextField(_emailController, "Email", false),
               const SizedBox(height: 16),
               _buildTextField(_passwordController, "Password", true),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               BlocBuilder<AuthBloc, AuthState>(
                 builder: (context, state) {
                   if (state is AuthLoading) {
-                    return const CircularProgressIndicator();
+                    return const CircularProgressIndicator(color: Colors.blue);
                   }
                   return ElevatedButton(
                     onPressed: () {
                       final request = UserRegistrationRequest(
-                        username: _usernameController.text,
-                        email: _emailController.text,
-                        password: _passwordController.text,
+                        username: _usernameController.text.trim(),
+                        email: _emailController.text.trim(),
+                        password: _passwordController.text.trim(),
                       );
                       context.read<AuthBloc>().add(RegisterRequested(request));
                     },
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue, // Twitter-style blue
+                      foregroundColor: Colors.white,
                       minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
                     ),
-                    child: const Text("Register"),
+                    child:
+                        const Text("Sign Up", style: TextStyle(fontSize: 16)),
                   );
                 },
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Divider(color: Colors.white24, thickness: 1),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Text("or", style: TextStyle(color: Colors.white54)),
+                  ),
+                  Expanded(
+                    child: Divider(color: Colors.white24, thickness: 1),
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
               TextButton(
                 onPressed: () => context.go('/auth/login'),
                 child: const Text(
-                  "Already have an account? Login",
-                  style: TextStyle(color: Colors.blue),
+                  "Already have an account? Log in",
+                  style: TextStyle(color: Colors.blue, fontSize: 14),
                 ),
               ),
             ],
@@ -96,11 +124,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         labelText: label,
         labelStyle: const TextStyle(color: Colors.white70),
         filled: true,
-        fillColor: const Color(0xFF111111),
+        fillColor: const Color(0xFF1A1A1A),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(25),
           borderSide: BorderSide.none,
         ),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       ),
     );
   }
