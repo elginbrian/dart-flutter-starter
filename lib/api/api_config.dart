@@ -22,6 +22,8 @@ class ApiConfig {
       "$baseUrl/posts/$postId/comments";
   static String commentById(String postId, String commentId) =>
       "$baseUrl/posts/$postId/comments/$commentId";
+  static String deleteCommentById(String commentId) =>
+      "$baseUrl/comments/$commentId";
 
   // Like Routes
   static String likePost(String postId) => "$baseUrl/posts/$postId/like";
