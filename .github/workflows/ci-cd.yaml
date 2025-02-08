@@ -21,13 +21,17 @@ jobs:
         with:
           flutter-version: 3.27.4
 
+      - name: Enable Flutter Web
+        run: flutter config --enable-web
+
       - name: Install dependencies
-        run: |
-          flutter pub get
+        run: flutter pub get
+
+      - name: Clean project
+        run: flutter clean
 
       - name: Build Flutter web app
-        run: |
-          flutter build web
+        run: flutter build web --release
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -47,6 +51,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: flutter-web-build
+          path: build/web
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -72,10 +77,11 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
+            set -e
             cd github/dart-flutter-starter
             git fetch origin
             git reset --hard origin/main
-            go mod vendor
-            docker image prune
+            docker pull ${{ secrets.DOCKER_USERNAME }}/flutter-starter:latest
+            docker image prune -f
             docker-compose down
             docker-compose up --build -d
