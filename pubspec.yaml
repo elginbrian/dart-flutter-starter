@@ -38,6 +38,9 @@ dependencies:
   json_serializable: ^6.9.3
   build_runner: ^2.4.14
   validators: ^3.0.0
+  dio: ^5.8.0+1
+  flutter_secure_storage: ^4.2.1
+  shared_preferences: ^2.5.1
 
 dev_dependencies:
   flutter_test:
