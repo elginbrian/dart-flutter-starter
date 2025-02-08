@@ -73,7 +73,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            cd github/flutter-starter
+            cd github/dart-flutter-starter
             git fetch origin
             git reset --hard origin/main
             go mod vendor
