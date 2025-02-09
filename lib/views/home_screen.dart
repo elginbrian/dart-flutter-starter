@@ -3,7 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_starter/bloc/post/post_bloc.dart';
 import 'package:flutter_starter/bloc/post/post_event.dart';
 import 'package:flutter_starter/bloc/post/post_state.dart';
+import 'package:flutter_starter/bloc/user/user_bloc.dart';
+import 'package:flutter_starter/bloc/user/user_event.dart';
+import 'package:flutter_starter/bloc/user/user_state.dart';
 import 'package:flutter_starter/models/post_model.dart';
+import 'package:flutter_starter/models/user_model.dart';
 import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -12,6 +16,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.read<PostBloc>().add(FetchAllPosts());
+    context.read<UserBloc>().add(FetchAllUsers());
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -32,37 +37,59 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       body: BlocBuilder<PostBloc, PostState>(
-        builder: (context, state) {
-          if (state is PostLoading) {
+        builder: (context, postState) {
+          if (postState is PostLoading) {
             return const Center(child: CircularProgressIndicator());
-          } else if (state is PostsLoaded) {
-            final posts = state.response.data;
+          } else if (postState is PostsLoaded) {
+            final posts = postState.response.data;
 
             if (posts.isEmpty) {
               return const Center(
-                child: Text(
-                  "No posts available",
-                  style: TextStyle(color: Colors.white),
-                ),
+                child: Text("No posts available",
+                    style: TextStyle(color: Colors.white)),
               );
             }
 
-            return ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount: posts.length,
-              itemBuilder: (context, index) {
-                final post = posts[index];
-                return _buildPost(post);
+            return BlocBuilder<UserBloc, UserState>(
+              builder: (context, userState) {
+                if (userState is UserLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (userState is UsersLoaded) {
+                  final users = {
+                    for (var user in userState.users.data) user.id: user
+                  };
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                    itemCount: posts.length,
+                    itemBuilder: (context, index) {
+                      final post = posts[index];
+                      final user = users[post.userId];
+
+                      return PostCard(post: post, user: user);
+                    },
+                  );
+                } else if (userState is UserError) {
+                  return Center(
+                    child: Text(userState.message,
+                        style: const TextStyle(color: Colors.red)),
+                  );
+                }
+
+                return const Center(
+                  child: Text("No users available",
+                      style: TextStyle(color: Colors.white)),
+                );
               },
             );
-          } else if (state is PostError) {
+          } else if (postState is PostError) {
             return Center(
-              child: Text(
-                state.message,
-                style: const TextStyle(color: Colors.red),
-              ),
+              child: Text(postState.message,
+                  style: const TextStyle(color: Colors.red)),
             );
           }
+
           return const Center(
             child: Text("No posts available",
                 style: TextStyle(color: Colors.white)),
@@ -76,8 +103,24 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildPost(Post post) {
+class PostCard extends StatelessWidget {
+  final Post post;
+  final User? user;
+
+  const PostCard({super.key, required this.post, required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    String username = user?.name ?? "Unknown User";
+    String email = user?.email ?? "Unknown User";
+    String imageUrl = user?.imageUrl ?? "";
+
+    return _buildPostCard(username, email, imageUrl);
+  }
+
+  Widget _buildPostCard(String username, String email, String imageUrl) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -90,38 +133,35 @@ class HomeScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 backgroundColor: Colors.grey,
-                child: Icon(Icons.person, color: Colors.white),
+                backgroundImage:
+                    imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+                child: imageUrl.isEmpty
+                    ? const Icon(Icons.person, color: Colors.white)
+                    : null,
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "User ${post.userId}",
-                      style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      "@user${post.userId}",
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
+                    Text(username,
+                        style: const TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold)),
+                    Text(email,
+                        style:
+                            const TextStyle(color: Colors.grey, fontSize: 12)),
                   ],
                 ),
               ),
-              Text(
-                "${post.createdAt.hour}h ago",
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
-              ),
+              Text("${post.createdAt.hour}h ago",
+                  style: const TextStyle(color: Colors.grey, fontSize: 12)),
             ],
           ),
           const SizedBox(height: 16),
-          Text(
-            post.caption ?? 'No caption available',
-            style: const TextStyle(color: Colors.white),
-          ),
+          Text(post.caption ?? 'No caption available',
+              style: const TextStyle(color: Colors.white)),
           if (post.imageUrl?.isNotEmpty ?? false)
             Padding(
               padding: const EdgeInsets.only(top: 8),
@@ -129,10 +169,7 @@ class HomeScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 child: AspectRatio(
                   aspectRatio: 16 / 9,
-                  child: Image.network(
-                    post.imageUrl!,
-                    fit: BoxFit.cover,
-                  ),
+                  child: Image.network(post.imageUrl!, fit: BoxFit.cover),
                 ),
               ),
             ),

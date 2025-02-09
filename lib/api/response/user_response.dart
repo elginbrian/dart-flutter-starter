@@ -1,3 +1,4 @@
+import 'package:flutter_starter/models/user_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'user_response.g.dart';
@@ -85,28 +86,4 @@ class DeleteUserResponse {
   factory DeleteUserResponse.fromJson(Map<String, dynamic> json) =>
       _$DeleteUserResponseFromJson(json);
   Map<String, dynamic> toJson() => _$DeleteUserResponseToJson(this);
-}
-
-@JsonSerializable()
-class User {
-  final String id;
-  final String username;
-  final String email;
-  final String imageUrl;
-  final String bio;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-
-  User({
-    required this.id,
-    required this.username,
-    required this.email,
-    required this.imageUrl,
-    required this.bio,
-    required this.createdAt,
-    required this.updatedAt,
-  });
-
-  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
-  Map<String, dynamic> toJson() => _$UserToJson(this);
 }

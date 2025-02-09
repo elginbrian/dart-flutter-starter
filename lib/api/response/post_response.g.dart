@@ -106,21 +106,3 @@ Map<String, dynamic> _$DeletePostDataToJson(DeletePostData instance) =>
     <String, dynamic>{
       'message': instance.message,
     };
-
-Post _$PostFromJson(Map<String, dynamic> json) => Post(
-      id: json['id'] as String,
-      userId: json['userId'] as String,
-      caption: json['caption'] as String,
-      imageUrl: json['imageUrl'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
-    );
-
-Map<String, dynamic> _$PostToJson(Post instance) => <String, dynamic>{
-      'id': instance.id,
-      'userId': instance.userId,
-      'caption': instance.caption,
-      'imageUrl': instance.imageUrl,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
-    };

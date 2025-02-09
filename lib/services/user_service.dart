@@ -11,12 +11,10 @@ class UserService {
     _dio.interceptors.add(AuthInterceptor(_dio));
   }
 
-  Future<List<GetAllUsersResponse>> getAllUsers() async {
+  Future<GetAllUsersResponse> getAllUsers() async {
     try {
       final response = await _dio.get(ApiConfig.users);
-      return (response.data as List)
-          .map((json) => GetAllUsersResponse.fromJson(json))
-          .toList();
+      return GetAllUsersResponse.fromJson(response.data);
     } catch (e) {
       throw Exception("Failed to fetch users: ${e.toString()}");
     }

@@ -82,23 +82,3 @@ Map<String, dynamic> _$DeleteUserResponseToJson(DeleteUserResponse instance) =>
       'data': instance.data,
       'code': instance.code,
     };
-
-User _$UserFromJson(Map<String, dynamic> json) => User(
-      id: json['id'] as String,
-      username: json['username'] as String,
-      email: json['email'] as String,
-      imageUrl: json['imageUrl'] as String,
-      bio: json['bio'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
-    );
-
-Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
-      'id': instance.id,
-      'username': instance.username,
-      'email': instance.email,
-      'imageUrl': instance.imageUrl,
-      'bio': instance.bio,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
-    };

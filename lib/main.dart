@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_starter/bloc/auth/auth_bloc.dart';
 import 'package:flutter_starter/bloc/post/post_bloc.dart';
+import 'package:flutter_starter/bloc/user/user_bloc.dart';
 import 'package:flutter_starter/services/auth_service.dart';
 import 'package:flutter_starter/services/post_service.dart';
+import 'package:flutter_starter/services/user_service.dart';
 import 'package:flutter_starter/views/app_router.dart';
 import 'package:flutter_starter/widgets/web_layout.dart';
 
@@ -18,6 +20,7 @@ void main() {
         BlocProvider<PostBloc>(
           create: (context) => PostBloc(PostService()),
         ),
+        BlocProvider<UserBloc>(create: (context) => UserBloc(UserService())),
       ],
       child: const MyApp(),
     ),

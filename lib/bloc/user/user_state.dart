@@ -11,21 +11,13 @@ class UserInitial extends UserState {}
 class UserLoading extends UserState {}
 
 class UsersLoaded extends UserState {
-  final List<GetAllUsersResponse> users;
-
+  final GetAllUsersResponse users;
   UsersLoaded(this.users);
-
-  @override
-  List<Object> get props => [users];
 }
 
 class UserLoaded extends UserState {
   final GetUserByIDResponse user;
-
   UserLoaded(this.user);
-
-  @override
-  List<Object> get props => [user];
 }
 
 class UserUpdated extends UserState {
