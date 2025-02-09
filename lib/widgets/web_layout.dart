@@ -12,8 +12,11 @@ class WebLayout extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         double aspectRatio = constraints.maxWidth / constraints.maxHeight;
-        double maxPortraitWidth = constraints.maxHeight * 0.5;
-        double maxPortraitHeight = constraints.maxHeight * 0.95;
+        bool isPortraitLike = aspectRatio < 0.7;
+
+        if (isPortraitLike) {
+          return child;
+        }
 
         bool isLocalImageAvailable = localBackgroundImagePath != null;
 
@@ -29,8 +32,8 @@ class WebLayout extends StatelessWidget {
           ),
           alignment: Alignment.center,
           child: Container(
-            width: maxPortraitWidth,
-            height: maxPortraitHeight,
+            width: constraints.maxHeight * 0.5,
+            height: constraints.maxHeight * 0.95,
             decoration: BoxDecoration(
               color: Colors.grey[800]?.withOpacity(0.8),
               borderRadius: BorderRadius.circular(20),
