@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 AS builder
+FROM ubuntu:20.04 AS dev
 
 RUN apt-get update && apt-get install -y \
     curl git unzip xz-utils zip \
@@ -16,13 +16,8 @@ RUN flutter precache --web
 WORKDIR /app
 COPY pubspec.yaml pubspec.lock /app/
 RUN flutter pub get
-
 COPY . /app/
-RUN flutter clean && flutter build web --release
 
-FROM nginx:stable-alpine
+EXPOSE 8080
 
-WORKDIR /usr/share/nginx/html
-COPY --from=builder /app/build/web . 
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["flutter", "run", "-d", "web-server", "--web-hostname=0.0.0.0", "--web-port=8080"]
