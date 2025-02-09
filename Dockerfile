@@ -1,7 +1,7 @@
 FROM ubuntu:20.04 AS dev
 
 RUN apt-get update && apt-get install -y \
-    curl git unzip xz-utils zip \
+    curl git unzip xz-utils zip nginx \
     && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/flutter/flutter.git /opt/flutter
@@ -18,6 +18,7 @@ COPY pubspec.yaml pubspec.lock /app/
 RUN flutter pub get
 COPY . /app/
 
-EXPOSE 8080
-
-CMD ["flutter", "run", "-d", "web-server", "--web-hostname=0.0.0.0", "--web-port=8080"]
+RUN flutter build web --release
+RUN mv /app/build/web /var/www/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
