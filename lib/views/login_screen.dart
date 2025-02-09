@@ -16,6 +16,22 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  String? _errorMessage;
+
+  void _login() {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = "Please enter both email and password.";
+      });
+      return;
+    }
+
+    final request = UserLoginRequest(email: email, password: password);
+    context.read<AuthBloc>().add(LoginRequested(request));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,84 +42,101 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Icon(Icons.chat_bubble_rounded,
-                  size: 80, color: Colors.blue),
-              const SizedBox(height: 30),
-              Text(
-                "Log in to Your Account",
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+          child: BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state is AuthAuthenticated) {
+                context.go('/home');
+              } else if (state is AuthError) {
+                setState(() {
+                  _errorMessage = state.message;
+                });
+              }
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Icon(Icons.chat_bubble_rounded,
+                    size: 80, color: Colors.blue),
+                const SizedBox(height: 30),
+                Text(
+                  "Log in to Your Account",
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                "Stay connected with the community",
-                style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 40),
-              _buildTextField(_emailController, "Email", false),
-              const SizedBox(height: 16),
-              _buildTextField(_passwordController, "Password", true),
-              const SizedBox(height: 24),
-              BlocBuilder<AuthBloc, AuthState>(
-                builder: (context, state) {
-                  if (state is AuthLoading) {
-                    return const CircularProgressIndicator(color: Colors.blue);
-                  }
-                  return ElevatedButton(
-                    onPressed: () {
-                      final request = UserLoginRequest(
-                        email: _emailController.text.trim(),
-                        password: _passwordController.text.trim(),
-                      );
-                      context.read<AuthBloc>().add(LoginRequested(request));
-                      context.go('/home');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
+                const SizedBox(height: 10),
+                Text(
+                  "Stay connected with the community",
+                  style:
+                      theme.textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 40),
+                if (_errorMessage != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Text(
+                      _errorMessage!,
+                      style: const TextStyle(color: Colors.red, fontSize: 14),
+                      textAlign: TextAlign.center,
                     ),
-                    child: const Text("Login", style: TextStyle(fontSize: 16)),
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Divider(color: Colors.white24, thickness: 1),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: Text("or", style: TextStyle(color: Colors.white54)),
-                  ),
-                  Expanded(
-                    child: Divider(color: Colors.white24, thickness: 1),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              TextButton(
-                onPressed: () => context.go('/auth/register'),
-                child: const Text(
-                  "Don't have an account? Sign up",
-                  style: TextStyle(color: Colors.blue, fontSize: 14),
+                _buildTextField(_emailController, "Email", false),
+                const SizedBox(height: 16),
+                _buildTextField(_passwordController, "Password", true),
+                const SizedBox(height: 24),
+                BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    if (state is AuthLoading) {
+                      return const CircularProgressIndicator(
+                          color: Colors.blue);
+                    }
+                    return ElevatedButton(
+                      onPressed: _login,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      child:
+                          const Text("Login", style: TextStyle(fontSize: 16)),
+                    );
+                  },
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Divider(color: Colors.white24, thickness: 1),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child:
+                          Text("or", style: TextStyle(color: Colors.white54)),
+                    ),
+                    Expanded(
+                      child: Divider(color: Colors.white24, thickness: 1),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                TextButton(
+                  onPressed: () => context.go('/auth/register'),
+                  child: const Text(
+                    "Don't have an account? Sign up",
+                    style: TextStyle(color: Colors.blue, fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

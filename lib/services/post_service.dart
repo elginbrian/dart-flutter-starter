@@ -11,12 +11,10 @@ class PostService {
     _dio.interceptors.add(AuthInterceptor(_dio));
   }
 
-  Future<List<GetAllPostsResponse>> getAllPosts() async {
+  Future<GetAllPostsResponse> getAllPosts() async {
     try {
       final response = await _dio.get(ApiConfig.posts);
-      return (response.data as List)
-          .map((json) => GetAllPostsResponse.fromJson(json))
-          .toList();
+      return GetAllPostsResponse.fromJson(response.data);
     } catch (e) {
       throw Exception("Failed to fetch posts: ${e.toString()}");
     }

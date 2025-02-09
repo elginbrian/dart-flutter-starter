@@ -13,10 +13,11 @@ class AuthInterceptor extends Interceptor {
     final prefs = await SharedPreferences.getInstance();
     final accessToken = prefs.getString('access_token');
 
-    if (accessToken != null) {
+    if (accessToken != null && accessToken.isNotEmpty) {
       options.headers['Authorization'] = accessToken;
     }
-    super.onRequest(options, handler);
+
+    handler.next(options);
   }
 
   @override
@@ -28,13 +29,14 @@ class AuthInterceptor extends Interceptor {
         return handler.resolve(retryRequest);
       }
     }
-    super.onError(err, handler);
+    handler.next(err);
   }
 
   Future<bool> _refreshToken() async {
     final prefs = await SharedPreferences.getInstance();
     final refreshToken = prefs.getString('refresh_token');
-    if (refreshToken == null) return false;
+
+    if (refreshToken == null || refreshToken.isEmpty) return false;
 
     try {
       final response = await dio.post(
@@ -57,13 +59,14 @@ class AuthInterceptor extends Interceptor {
     final prefs = await SharedPreferences.getInstance();
     final newAccessToken = prefs.getString('access_token');
 
+    final updatedHeaders = Map<String, dynamic>.from(requestOptions.headers);
+    updatedHeaders['Authorization'] = newAccessToken;
+
     final options = Options(
       method: requestOptions.method,
-      headers: {
-        ...requestOptions.headers,
-        'Authorization': 'Bearer $newAccessToken',
-      },
+      headers: updatedHeaders,
     );
+
     return dio.request(
       requestOptions.path,
       data: requestOptions.data,

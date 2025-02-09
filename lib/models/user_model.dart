@@ -3,8 +3,8 @@ class User {
   final String name;
   final String email;
   final String passwordHash;
-  final String imageUrl;
-  final String bio;
+  final String? imageUrl;
+  final String? bio;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -12,23 +12,27 @@ class User {
     required this.id,
     required this.name,
     required this.email,
-    required this.passwordHash,
-    required this.imageUrl,
-    required this.bio,
+    this.passwordHash = "",
+    this.imageUrl,
+    this.bio,
     required this.createdAt,
     required this.updatedAt,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'],
-      name: json['name'],
-      email: json['email'],
+      id: json['id'] ?? '',
+      name: json['name'] ?? 'Unknown',
+      email: json['email'] ?? '',
       passwordHash: '',
-      imageUrl: json['image_url'],
-      bio: json['bio'],
-      createdAt: DateTime.parse(json['created']),
-      updatedAt: DateTime.parse(json['updated']),
+      imageUrl: json['image_url'] ?? '',
+      bio: json['bio'] ?? '',
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'])
+          : DateTime.now(),
     );
   }
 
@@ -37,10 +41,10 @@ class User {
       'id': id,
       'name': name,
       'email': email,
-      'image_url': imageUrl,
-      'bio': bio,
-      'created': createdAt.toIso8601String(),
-      'updated': updatedAt.toIso8601String(),
+      'image_url': imageUrl ?? '',
+      'bio': bio ?? '',
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
     };
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter_starter/models/post_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'post_response.g.dart';
@@ -115,26 +116,4 @@ class DeletePostData {
   factory DeletePostData.fromJson(Map<String, dynamic> json) =>
       _$DeletePostDataFromJson(json);
   Map<String, dynamic> toJson() => _$DeletePostDataToJson(this);
-}
-
-@JsonSerializable()
-class Post {
-  final String id;
-  final String userId;
-  final String caption;
-  final String imageUrl;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-
-  Post({
-    required this.id,
-    required this.userId,
-    required this.caption,
-    required this.imageUrl,
-    required this.createdAt,
-    required this.updatedAt,
-  });
-
-  factory Post.fromJson(Map<String, dynamic> json) => _$PostFromJson(json);
-  Map<String, dynamic> toJson() => _$PostToJson(this);
 }

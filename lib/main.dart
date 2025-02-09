@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_starter/bloc/auth/auth_bloc.dart';
+import 'package:flutter_starter/bloc/post/post_bloc.dart';
 import 'package:flutter_starter/services/auth_service.dart';
+import 'package:flutter_starter/services/post_service.dart';
 import 'package:flutter_starter/views/app_router.dart';
 import 'package:flutter_starter/widgets/web_layout.dart';
 
@@ -12,6 +14,9 @@ void main() {
       providers: [
         BlocProvider<AuthBloc>(
           create: (context) => AuthBloc(AuthService()),
+        ),
+        BlocProvider<PostBloc>(
+          create: (context) => PostBloc(PostService()),
         ),
       ],
       child: const MyApp(),

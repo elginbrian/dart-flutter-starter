@@ -17,6 +17,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  String? _errorMessage;
+
+  void _register() {
+    final username = _usernameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (username.isEmpty || email.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = "All fields are required.";
+      });
+      return;
+    }
+
+    final request = UserRegistrationRequest(
+      username: username,
+      email: email,
+      password: password,
+    );
+
+    context.read<AuthBloc>().add(RegisterRequested(request));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,87 +49,103 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Icon(Icons.chat_bubble_rounded,
-                  size: 80, color: Colors.blue),
-              const SizedBox(height: 30),
-              Text(
-                "Create Your Account",
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+          child: BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state is AuthUnauthenticated) {
+                context.go('/auth/login');
+              } else if (state is AuthError) {
+                setState(() {
+                  _errorMessage = state.message;
+                });
+              }
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Icon(Icons.chat_bubble_rounded,
+                    size: 80, color: Colors.blue),
+                const SizedBox(height: 30),
+                Text(
+                  "Create Your Account",
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                "Join the conversation today!",
-                style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 40),
-              _buildTextField(_usernameController, "Username", false),
-              const SizedBox(height: 16),
-              _buildTextField(_emailController, "Email", false),
-              const SizedBox(height: 16),
-              _buildTextField(_passwordController, "Password", true),
-              const SizedBox(height: 24),
-              BlocBuilder<AuthBloc, AuthState>(
-                builder: (context, state) {
-                  if (state is AuthLoading) {
-                    return const CircularProgressIndicator(color: Colors.blue);
-                  }
-                  return ElevatedButton(
-                    onPressed: () {
-                      final request = UserRegistrationRequest(
-                        username: _usernameController.text.trim(),
-                        email: _emailController.text.trim(),
-                        password: _passwordController.text.trim(),
-                      );
-                      context.read<AuthBloc>().add(RegisterRequested(request));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue, // Twitter-style blue
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
+                const SizedBox(height: 10),
+                Text(
+                  "Join the conversation today!",
+                  style:
+                      theme.textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 40),
+                if (_errorMessage != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Text(
+                      _errorMessage!,
+                      style: const TextStyle(color: Colors.red, fontSize: 14),
+                      textAlign: TextAlign.center,
                     ),
-                    child:
-                        const Text("Sign Up", style: TextStyle(fontSize: 16)),
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Divider(color: Colors.white24, thickness: 1),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: Text("or", style: TextStyle(color: Colors.white54)),
-                  ),
-                  Expanded(
-                    child: Divider(color: Colors.white24, thickness: 1),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              TextButton(
-                onPressed: () => context.go('/auth/login'),
-                child: const Text(
-                  "Already have an account? Log in",
-                  style: TextStyle(color: Colors.blue, fontSize: 14),
+                _buildTextField(_usernameController, "Username", false),
+                const SizedBox(height: 16),
+                _buildTextField(_emailController, "Email", false),
+                const SizedBox(height: 16),
+                _buildTextField(_passwordController, "Password", true),
+                const SizedBox(height: 24),
+                BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    if (state is AuthLoading) {
+                      return const CircularProgressIndicator(
+                          color: Colors.blue);
+                    }
+                    return ElevatedButton(
+                      onPressed: _register,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      child:
+                          const Text("Sign Up", style: TextStyle(fontSize: 16)),
+                    );
+                  },
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Divider(color: Colors.white24, thickness: 1),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child:
+                          Text("or", style: TextStyle(color: Colors.white54)),
+                    ),
+                    Expanded(
+                      child: Divider(color: Colors.white24, thickness: 1),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                TextButton(
+                  onPressed: () => context.go('/auth/login'),
+                  child: const Text(
+                    "Already have an account? Log in",
+                    style: TextStyle(color: Colors.blue, fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

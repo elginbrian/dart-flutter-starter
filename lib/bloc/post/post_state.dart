@@ -11,12 +11,8 @@ class PostInitial extends PostState {}
 class PostLoading extends PostState {}
 
 class PostsLoaded extends PostState {
-  final List<GetAllPostsResponse> posts;
-
-  PostsLoaded(this.posts);
-
-  @override
-  List<Object> get props => [posts];
+  final GetAllPostsResponse response;
+  PostsLoaded(this.response);
 }
 
 class PostLoaded extends PostState {
