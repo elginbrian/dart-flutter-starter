@@ -11,18 +11,18 @@ RUN git checkout 3.27.4
 ENV PATH="/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:${PATH}"
 
 RUN flutter config --enable-web
+RUN flutter precache --web
 
 WORKDIR /app
 COPY pubspec.yaml pubspec.lock /app/
 RUN flutter pub get
 
 COPY . /app/
-
-RUN flutter clean && flutter build web --release \
-    && rm -rf /app/.dart_tool  # Reduce image size
+RUN flutter clean && flutter build web --release
 
 FROM nginx:stable-alpine
+
 WORKDIR /usr/share/nginx/html
-COPY --from=builder /app/build/web .
+COPY --from=builder /app/build/web . 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

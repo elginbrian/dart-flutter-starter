@@ -8,8 +8,12 @@ import 'package:flutter_starter/widgets/web_layout.dart';
 
 void main() {
   runApp(
-    BlocProvider(
-      create: (context) => AuthBloc(AuthService()),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthBloc>(
+          create: (context) => AuthBloc(AuthService()),
+        ),
+      ],
       child: const MyApp(),
     ),
   );
@@ -27,10 +31,11 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         if (kIsWeb) {
           return WebLayout(
-              localBackgroundImagePath: 'assets/default_background.jpg',
-              child: child!);
+            localBackgroundImagePath: 'assets/default_background.jpg',
+            child: child ?? const SizedBox(),
+          );
         }
-        return child!;
+        return child ?? const SizedBox();
       },
     );
   }
