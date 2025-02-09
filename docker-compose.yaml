@@ -7,11 +7,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8082:80"
-    volumes:
-      - .:/app
+    restart: always
     networks:
       - flutter-network
-    restart: always
 
 networks:
   flutter-network:
