@@ -2,9 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_starter/bloc/auth/auth_bloc.dart';
+import 'package:flutter_starter/bloc/comment/comment_bloc.dart';
+import 'package:flutter_starter/bloc/like/like_bloc.dart';
 import 'package:flutter_starter/bloc/post/post_bloc.dart';
 import 'package:flutter_starter/bloc/user/user_bloc.dart';
 import 'package:flutter_starter/services/auth_service.dart';
+import 'package:flutter_starter/services/comment_service.dart';
+import 'package:flutter_starter/services/like_service.dart';
 import 'package:flutter_starter/services/post_service.dart';
 import 'package:flutter_starter/services/user_service.dart';
 import 'package:flutter_starter/views/app_router.dart';
@@ -21,6 +25,9 @@ void main() {
           create: (context) => PostBloc(PostService()),
         ),
         BlocProvider<UserBloc>(create: (context) => UserBloc(UserService())),
+        BlocProvider<LikeBloc>(create: (context) => LikeBloc(LikeService())),
+        BlocProvider<CommentBloc>(
+            create: (context) => CommentBloc(CommentService())),
       ],
       child: const MyApp(),
     ),
@@ -35,7 +42,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'Flutter Starter',
       theme: ThemeData.dark(),
-      routerConfig: appRouter,
+      routerConfig: appRouter(context),
       builder: (context, child) {
         if (kIsWeb) {
           return WebLayout(

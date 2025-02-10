@@ -33,6 +33,7 @@ class UserService {
     try {
       FormData formData = FormData.fromMap({
         'username': request.username,
+        'image': await MultipartFile.fromFile(request.image.path),
       });
 
       final response = await _dio.patch(

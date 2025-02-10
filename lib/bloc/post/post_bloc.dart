@@ -43,7 +43,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     emit(PostLoading());
     try {
       final userPosts = await _postService.getPostsByUserId(event.userId);
-      emit(UserPostsLoaded(userPosts));
+      emit(UserPostsLoaded(userPosts.data));
     } catch (e) {
       emit(PostError("Failed to fetch user posts: ${e.toString()}"));
     }
@@ -88,7 +88,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     emit(PostLoading());
     try {
       final results = await _postService.searchPosts(event.query);
-      emit(PostsSearched(results));
+      emit(PostsSearched(results.data));
     } catch (e) {
       emit(PostError("Failed to search posts: ${e.toString()}"));
     }

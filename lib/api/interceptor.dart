@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_starter/api/api_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:html' as html;
 
 class AuthInterceptor extends Interceptor {
   final Dio dio;
@@ -10,8 +12,14 @@ class AuthInterceptor extends Interceptor {
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
-    final prefs = await SharedPreferences.getInstance();
-    final accessToken = prefs.getString('access_token');
+    String? accessToken;
+
+    if (kIsWeb) {
+      accessToken = _localStorageGet('access_token');
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      accessToken = prefs.getString('access_token');
+    }
 
     if (accessToken != null && accessToken.isNotEmpty) {
       options.headers['Authorization'] = accessToken;
@@ -33,8 +41,14 @@ class AuthInterceptor extends Interceptor {
   }
 
   Future<bool> _refreshToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    final refreshToken = prefs.getString('refresh_token');
+    String? refreshToken;
+
+    if (kIsWeb) {
+      refreshToken = _localStorageGet('refresh_token');
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      refreshToken = prefs.getString('refresh_token');
+    }
 
     if (refreshToken == null || refreshToken.isEmpty) return false;
 
@@ -46,7 +60,14 @@ class AuthInterceptor extends Interceptor {
 
       if (response.statusCode == 200) {
         final newAccessToken = response.data['access_token'];
-        await prefs.setString('access_token', newAccessToken);
+
+        if (kIsWeb) {
+          _localStorageSet('access_token', newAccessToken);
+        } else {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('access_token', newAccessToken);
+        }
+
         return true;
       }
     } catch (e) {
@@ -56,8 +77,14 @@ class AuthInterceptor extends Interceptor {
   }
 
   Future<Response<dynamic>> _retry(RequestOptions requestOptions) async {
-    final prefs = await SharedPreferences.getInstance();
-    final newAccessToken = prefs.getString('access_token');
+    String? newAccessToken;
+
+    if (kIsWeb) {
+      newAccessToken = _localStorageGet('access_token');
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      newAccessToken = prefs.getString('access_token');
+    }
 
     final updatedHeaders = Map<String, dynamic>.from(requestOptions.headers);
     updatedHeaders['Authorization'] = newAccessToken;
@@ -73,5 +100,15 @@ class AuthInterceptor extends Interceptor {
       queryParameters: requestOptions.queryParameters,
       options: options,
     );
+  }
+
+  String? _localStorageGet(String key) {
+    return kIsWeb ? html.window.localStorage[key] : null;
+  }
+
+  void _localStorageSet(String key, String value) {
+    if (kIsWeb) {
+      html.window.localStorage[key] = value;
+    }
   }
 }

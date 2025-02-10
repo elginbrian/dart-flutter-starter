@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_starter/api/api_config.dart';
 import 'package:flutter_starter/api/interceptor.dart';
 import 'package:flutter_starter/api/request/auth_request.dart';
 import 'package:flutter_starter/api/response/auth_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:html' as html;
 
 class AuthService {
   late final Dio _dio;
@@ -69,9 +71,14 @@ class AuthService {
   }
 
   Future<void> _saveTokens(String accessToken, String refreshToken) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('access_token', accessToken);
-    await prefs.setString('refresh_token', refreshToken);
+    if (kIsWeb) {
+      html.window.localStorage['access_token'] = accessToken;
+      html.window.localStorage['refresh_token'] = refreshToken;
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('access_token', accessToken);
+      await prefs.setString('refresh_token', refreshToken);
+    }
   }
 
   Future<T> _handleRequest<T>(

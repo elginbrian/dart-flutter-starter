@@ -1,33 +1,44 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_starter/api/response/post_response.dart';
+import 'package:flutter_starter/models/post_model.dart';
 
 abstract class PostState extends Equatable {
+  const PostState();
+
   @override
   List<Object> get props => [];
 }
 
-class PostInitial extends PostState {}
+class PostInitial extends PostState {
+  const PostInitial();
+}
 
-class PostLoading extends PostState {}
+class PostLoading extends PostState {
+  const PostLoading();
+}
 
 class PostsLoaded extends PostState {
   final GetAllPostsResponse response;
-  PostsLoaded(this.response);
+
+  const PostsLoaded(this.response);
+
+  @override
+  List<Object> get props => [response];
 }
 
 class PostLoaded extends PostState {
   final GetPostByIDResponse post;
 
-  PostLoaded(this.post);
+  const PostLoaded(this.post);
 
   @override
   List<Object> get props => [post];
 }
 
 class UserPostsLoaded extends PostState {
-  final List<GetAllPostsResponse> userPosts;
+  final List<Post> userPosts;
 
-  UserPostsLoaded(this.userPosts);
+  const UserPostsLoaded(this.userPosts);
 
   @override
   List<Object> get props => [userPosts];
@@ -36,7 +47,7 @@ class UserPostsLoaded extends PostState {
 class PostCreated extends PostState {
   final CreatePostResponse response;
 
-  PostCreated(this.response);
+  const PostCreated(this.response);
 
   @override
   List<Object> get props => [response];
@@ -45,18 +56,20 @@ class PostCreated extends PostState {
 class PostUpdated extends PostState {
   final UpdatePostResponse response;
 
-  PostUpdated(this.response);
+  const PostUpdated(this.response);
 
   @override
   List<Object> get props => [response];
 }
 
-class PostDeleted extends PostState {}
+class PostDeleted extends PostState {
+  const PostDeleted();
+}
 
 class PostsSearched extends PostState {
-  final List<SearchPostsResponse> searchResults;
+  final List<Post> searchResults;
 
-  PostsSearched(this.searchResults);
+  const PostsSearched(this.searchResults);
 
   @override
   List<Object> get props => [searchResults];
@@ -65,7 +78,7 @@ class PostsSearched extends PostState {
 class PostError extends PostState {
   final String message;
 
-  PostError(this.message);
+  const PostError(this.message);
 
   @override
   List<Object> get props => [message];

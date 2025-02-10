@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_starter/bloc/auth/auth_bloc.dart';
+import 'package:flutter_starter/bloc/auth/auth_state.dart';
 import 'package:flutter_starter/bloc/post/post_bloc.dart';
 import 'package:flutter_starter/bloc/post/post_event.dart';
 import 'package:flutter_starter/bloc/post/post_state.dart';
 import 'package:flutter_starter/bloc/user/user_bloc.dart';
 import 'package:flutter_starter/bloc/user/user_event.dart';
 import 'package:flutter_starter/bloc/user/user_state.dart';
-import 'package:flutter_starter/models/post_model.dart';
-import 'package:flutter_starter/models/user_model.dart';
+import 'package:flutter_starter/widgets/post_card.dart';
 import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -29,11 +30,42 @@ class HomeScreen extends StatelessWidget {
             icon: const Icon(Icons.search, color: Colors.white),
             onPressed: () {},
           ),
-          IconButton(
-            icon: const Icon(Icons.person, color: Colors.white),
-            onPressed: () => context.go('/profile'),
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, authState) {
+              if (authState is AuthAuthenticated) {
+                return Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.person, color: Colors.white),
+                      onPressed: () => context.go('/profile'),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                );
+              } else {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 10.0),
+                  child: ElevatedButton(
+                    onPressed: () => context.go('/auth/login'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                    ),
+                    child: const Text(
+                      "Login",
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                );
+              }
+            },
           ),
-          const SizedBox(width: 8),
         ],
       ),
       body: BlocBuilder<PostBloc, PostState>(
@@ -96,106 +128,19 @@ class HomeScreen extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.go('/create-post'),
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.create, color: Colors.white),
+      floatingActionButton: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, authState) {
+          if (authState is AuthAuthenticated) {
+            return FloatingActionButton(
+              onPressed: () => context.go('/create-post'),
+              backgroundColor: Colors.blue,
+              child: const Icon(Icons.create, color: Colors.white),
+            );
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
       ),
-    );
-  }
-}
-
-class PostCard extends StatelessWidget {
-  final Post post;
-  final User? user;
-
-  const PostCard({super.key, required this.post, required this.user});
-
-  @override
-  Widget build(BuildContext context) {
-    String username = user?.name ?? "Unknown User";
-    String email = user?.email ?? "Unknown User";
-    String imageUrl = user?.imageUrl ?? "";
-
-    return _buildPostCard(username, email, imageUrl);
-  }
-
-  Widget _buildPostCard(String username, String email, String imageUrl) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF111111),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: Colors.grey,
-                backgroundImage:
-                    imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
-                child: imageUrl.isEmpty
-                    ? const Icon(Icons.person, color: Colors.white)
-                    : null,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(username,
-                        style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold)),
-                    Text(email,
-                        style:
-                            const TextStyle(color: Colors.grey, fontSize: 12)),
-                  ],
-                ),
-              ),
-              Text("${post.createdAt.hour}h ago",
-                  style: const TextStyle(color: Colors.grey, fontSize: 12)),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(post.caption ?? 'No caption available',
-              style: const TextStyle(color: Colors.white)),
-          if (post.imageUrl?.isNotEmpty ?? false)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: Image.network(post.imageUrl!, fit: BoxFit.cover),
-                ),
-              ),
-            ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _postAction(Icons.comment, "12"),
-              _postAction(Icons.favorite_border, "24"),
-              _postAction(Icons.share, ""),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _postAction(IconData icon, String label) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: Colors.grey),
-        if (label.isNotEmpty) ...[
-          const SizedBox(width: 4),
-          Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-        ],
-      ],
     );
   }
 }

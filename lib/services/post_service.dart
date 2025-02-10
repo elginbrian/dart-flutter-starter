@@ -29,12 +29,10 @@ class PostService {
     }
   }
 
-  Future<List<GetAllPostsResponse>> getPostsByUserId(String userId) async {
+  Future<GetAllPostsResponse> getPostsByUserId(String userId) async {
     try {
       final response = await _dio.get(ApiConfig.postsByUser(userId));
-      return (response.data as List)
-          .map((json) => GetAllPostsResponse.fromJson(json))
-          .toList();
+      return GetAllPostsResponse.fromJson(response.data);
     } catch (e) {
       throw Exception("Failed to fetch user posts: ${e.toString()}");
     }
@@ -59,12 +57,10 @@ class PostService {
     }
   }
 
-  Future<List<SearchPostsResponse>> searchPosts(String query) async {
+  Future<SearchPostsResponse> searchPosts(String query) async {
     try {
       final response = await _dio.get("${ApiConfig.searchPosts}?query=$query");
-      return (response.data as List)
-          .map((json) => SearchPostsResponse.fromJson(json))
-          .toList();
+      return SearchPostsResponse.fromJson(response.data);
     } catch (e) {
       throw Exception("Failed to search posts: ${e.toString()}");
     }
